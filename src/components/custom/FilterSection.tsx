@@ -45,10 +45,18 @@ const FilterSection = ({
           </div>
 
           <div className="flex sm:flex-row w-full lg:w-auto flex-col mt-4 lg:mt-0 gap-3">
-            <Button variant="outline" onClick={onUpdateResults}>
+            <Button
+              className="hover:bg-neutral-300"
+              variant="outline"
+              onClick={onUpdateResults}
+            >
               Submit Preferences
             </Button>
-            <Button variant="outline" onClick={onReset}>
+            <Button
+              className="hover:bg-neutral-300"
+              variant="outline"
+              onClick={onReset}
+            >
               Reset Filters
             </Button>
           </div>
@@ -77,6 +85,11 @@ const FilterSection = ({
             {filters.map((filter) => (
               <Button
                 key={filter}
+                className={`transition-all duration-200 hover:shadow-sm  active:scale-95 ${
+                  selectedFilters[category]?.includes(filter)
+                    ? "bg-primary"
+                    : "hover:border-opacity-100 hover:bg-[#CDFFFF] hover:bg-opacity-80"
+                } `}
                 variant={`${
                   selectedFilters[category]?.includes(filter)
                     ? "default"

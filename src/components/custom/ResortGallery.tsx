@@ -28,7 +28,32 @@ import {
   CarouselItem,
 } from "@/components/ui/carousel";
 import { handleBookNowClick } from "@/constants";
-import { ArrowLeft, ArrowRight, ChevronLeft, ChevronRight, X, ZoomIn, ZoomOut } from "lucide-react";
+import {
+  ArrowLeft,
+  ArrowRight,
+  ChevronLeft,
+  ChevronRight,
+  X,
+  ZoomIn,
+  ZoomOut,
+} from "lucide-react";
+import {
+  BeachGoersIcon,
+  FoodiesIcon,
+  WaterSportsEnthusiastsIcon,
+  PoolEnthusiastsIcon,
+  DiversIcon,
+  GolfEnthusiastsIcon,
+  NaturalAttractionsIcon,
+  NearbyAirportIcon,
+  SecludedPrivacyIcon,
+  TranquilityIcon,
+  QuaintLuxuryIcon,
+  PickleballLoversIcon,
+  FamilyFunIcon,
+  WeatherIcon,
+  AdventureSeekersIcon,
+} from "../icons/ResortIcons";
 
 const ResortGallery = ({
   finderType,
@@ -53,7 +78,6 @@ const ResortGallery = ({
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState(0);
   const [scale, setScale] = useState(1);
-
 
   // const [activeTabImages, setActiveTabImages] = useState([]);
 
@@ -85,7 +109,6 @@ const ResortGallery = ({
     setActiveTab("Overview");
   };
 
-
   const handleZoomIn = () => {
     setScale((prev) => (prev === 1 ? 2 : 1)); // Toggle between 1x and 2x zoom
   };
@@ -93,7 +116,6 @@ const ResortGallery = ({
   const handleZoomOut = () => {
     setScale(1); // Reset to 1x zoom
   };
-
 
   // Add navigation handlers
   const handlePrevious = () => {
@@ -164,9 +186,47 @@ const ResortGallery = ({
     }
   };
 
+  // Function to get the appropriate icon for each label
+  const getIconForLabel = (
+    label: string
+  ): React.ComponentType<{ className?: string; color?: string }> => {
+    const iconMap: {
+      [key: string]: React.ComponentType<{
+        className?: string;
+        color?: string;
+      }>;
+    } = {
+      "Beach Goers": BeachGoersIcon,
+      Foodies: FoodiesIcon,
+      "WaterSports Enthusiasts": WaterSportsEnthusiastsIcon,
+      "Watersports Enthusiasts": WaterSportsEnthusiastsIcon,
+      "Pool Enthusiasts": PoolEnthusiastsIcon,
+      Divers: DiversIcon,
+      "Golf Enthusiasts": GolfEnthusiastsIcon,
+      "Natural Attractions": NaturalAttractionsIcon,
+      "Nearby Airport": NearbyAirportIcon,
+      "Secluded Privacy": SecludedPrivacyIcon,
+      Tranquility: TranquilityIcon,
+      "Quaint Luxury": QuaintLuxuryIcon,
+      "Pickleball Lovers": PickleballLoversIcon,
+      "Family Fun": FamilyFunIcon,
+      "Adventure Seekers": AdventureSeekersIcon,
+    };
+
+    return iconMap[label] || WeatherIcon; // Default to WeatherIcon if no match
+  };
+
+  // Helper component to render icons
+  const IconRenderer = ({ label }: { label: string }) => {
+    const IconComponent = getIconForLabel(label);
+    return <IconComponent className="w-4 h-4" color="#99CEFA" />;
+  };
+
   const getCurrentTabImages = () => {
     const currentResort = resorts[activeCarouselIndex];
-    const currentTab = currentResort?.Tabs?.find(tab => tab.name === activeTab);
+    const currentTab = currentResort?.Tabs?.find(
+      (tab) => tab.name === activeTab
+    );
     return currentTab?.images || [];
   };
 
@@ -184,17 +244,21 @@ const ResortGallery = ({
   }
   return (
     <div
-      className={`mx-auto flex justify-center items-center  bg-secondary relative overflow-hidden lg:pl-2.5 lg:pr-2.5  pb-8 ${resorts.length > 0 ? "block" : "hidden"
-        }`}
+      className={`mx-auto flex justify-center items-center  bg-secondary relative overflow-hidden lg:pl-2.5 lg:pr-2.5  pb-8 ${
+        resorts.length > 0 ? "block" : "hidden"
+      }`}
     >
-      <button
-        onClick={handlePrevious}
-        className={`h-10 w-10 min-w-10 rounded-full bg-primary text-white  hidden lg:flex items-center justify-center ${activeCarouselIndex === 0 ? "opacity-50" : ""
+      {resorts.length > 1 && (
+        <button
+          onClick={handlePrevious}
+          className={`h-10 w-10 min-w-10 rounded-full bg-primary text-white  hidden lg:flex items-center justify-center ${
+            activeCarouselIndex === 0 ? "opacity-50" : ""
           }`}
-        disabled={activeCarouselIndex === 0}
-      >
-        <ArrowLeft className="h-4 w-4" />
-      </button>
+          disabled={activeCarouselIndex === 0}
+        >
+          <ArrowLeft className="h-4 w-4" />
+        </button>
+      )}
 
       <Carousel className="w-full max-w-7xl lg:max-w-[calc(100%-100px)] 2xl:max-w-7xl">
         <CarouselContent className=" mb-8">
@@ -252,47 +316,39 @@ const ResortGallery = ({
                             </ul>
                           </div>
 
-                          <div className="mb-8">
-                            <h2 className="text-xl font-sandalsSlab mb-4">
+                          <div className="text-[#99CEFA] mb-8">
+                            <h2 className="text-xl lg:text-2xl font-sandalsSlab mb-4">
                               Ideal For
                             </h2>
-                            <div className="flex gap-3  text-tertiary font-medium font-sandalsSans">
-                              <div
-                                style={{
-                                  backgroundColor:
-                                    resort.IdealFor?.[0]?.background,
-                                  color: resort.IdealFor?.[0]?.textColor,
-                                }}
-                                className="rounded-3xl px-2 py-4 flex-1 h-16 flex justify-center items-center"
-                              >
-                                <span className="text-sm text-center">
-                                  {resort.IdealFor[0].name}
-                                </span>
-                              </div>
-                              <div
-                                style={{
-                                  backgroundColor:
-                                    resort.IdealFor2?.[0]?.background,
-                                  color: resort.IdealFor2?.[0]?.textColor,
-                                }}
-                                className="rounded-3xl px-2 py-4 flex-1 h-16 flex justify-center items-center"
-                              >
-                                <span className="text-sm text-center">
-                                  {resort.IdealFor2?.[0]?.name}
-                                </span>
-                              </div>
-                              <div
-                                style={{
-                                  backgroundColor:
-                                    resort.IdealFor3?.[0]?.background,
-                                  color: resort.IdealFor3?.[0]?.textColor,
-                                }}
-                                className="rounded-3xl px-2 py-4 flex-1 h-16 flex justify-center items-center"
-                              >
-                                <span className="text-sm leading-snug text-center">
-                                  {resort.IdealFor3?.[0].name}
-                                </span>
-                              </div>
+                            <div
+                              className="flex flex-wrap sm:flex-nowrap items-center gap-2 font-sandalsSans text-[12px]"
+                              style={
+                                {
+                                  "--icon-color": "#99CEFA",
+                                } as React.CSSProperties
+                              }
+                            >
+                              {[
+                                resort.IdealFor?.[0]?.name,
+                                resort.IdealFor2?.[0]?.name,
+                                resort.IdealFor3?.[0]?.name,
+                              ]
+                                .filter(Boolean)
+                                .map((label, index, array) => (
+                                  <div
+                                    key={index}
+                                    className="flex items-center gap-2"
+                                  >
+                                    <span className="whitespace-nowrap flex items-center gap-2">
+                                      <IconRenderer label={label || ""} />{" "}
+                                      <span className="text-[#99CEFA] text-[11px] font-light">
+                                        {" "}
+                                        {label}
+                                      </span>
+                                    </span>
+                                    {index < array.length - 1 && <span>|</span>}
+                                  </div>
+                                ))}
                             </div>
                           </div>
 
@@ -305,7 +361,9 @@ const ResortGallery = ({
                           >
                             Book Now
                           </Button>
-                          <p className="mt-2 text-sm font-medium">Up to 12% off. Only available on resort.</p>
+                          <p className="mt-2 text-sm font-medium">
+                            Up to 12% off. Only available on resort.
+                          </p>
                         </div>
                       </div>
                     </div>
@@ -324,10 +382,11 @@ const ResortGallery = ({
                                     onClick={() => handleTabClick(tab)}
                                     variant="ghost"
                                     size="sm"
-                                    className={`text-black rounded-none ${isActiveTab
-                                      ? "border-b-4 border-primary"
-                                      : "border-b-4 border-transparent"
-                                      }`}
+                                    className={`text-black rounded-none ${
+                                      isActiveTab
+                                        ? "border-b-4 border-primary"
+                                        : "border-b-4 border-transparent"
+                                    }`}
                                   >
                                     {tab.name}
                                   </Button>
@@ -355,7 +414,9 @@ const ResortGallery = ({
                             </Button>
                           </div>
                         </div>
-                        <p className="mb-3 text-sm text-right font-medium">Up to 12% off. Only available on resort.</p>
+                        <p className="mb-3 text-sm text-right font-medium">
+                          Up to 12% off. Only available on resort.
+                        </p>
                         <div className="grid grid-cols-4 gap-4">
                           {resort.Tabs.find(
                             (tab: { name: string }) => tab.name === activeTab
@@ -368,27 +429,31 @@ const ResortGallery = ({
                               )?.images?.map((img: string, index: number) => {
                                 return (
                                   <div
-                                    className={`${activeTab === "Map"
-                                      ? "col-span-4"
-                                      : "col-span-2"
-                                      }`}
+                                    className={`${
+                                      activeTab === "Map"
+                                        ? "col-span-4"
+                                        : "col-span-2"
+                                    }`}
                                     key={index + img}
                                   >
                                     <img
                                       src={img}
                                       alt={`${resort.ResortTitle} ${activeTab}`}
-                                      className={`${activeTab === "Map"
-                                        ? "h-[900px] lg:h-[930px]"
-                                        : "h-[250px]"
-                                        } w-full object-cover rounded-3xl cursor-pointer`}
+                                      className={`${
+                                        activeTab === "Map"
+                                          ? "h-[900px] lg:h-[930px]"
+                                          : "h-[250px]"
+                                      } w-full object-cover rounded-3xl cursor-pointer`}
                                       onClick={() => {
                                         setSelectedImage(index);
                                         setIsPreviewOpen(true);
                                         setScale(1); // Reset zoom when opening new image
                                       }}
                                       onError={(e) => {
-                                        const target = e.target as HTMLImageElement;
-                                        target.parentElement!.style.display = "none";
+                                        const target =
+                                          e.target as HTMLImageElement;
+                                        target.parentElement!.style.display =
+                                          "none";
                                       }}
                                     />
                                   </div>
@@ -422,54 +487,62 @@ const ResortGallery = ({
           )}
         </CarouselContent>
 
-        <div className="flex items-center justify-center mt-10">
-          <div className="absolute bottom-4 w-full flex gap-2 justify-center items-center">
-            <button
-              onClick={handlePrevious}
-              className="h-10 w-10 rounded-full bg-primary text-white flex disabled:opacity-50 items-center justify-center"
-              disabled={activeCarouselIndex === 0}
-            >
-              <ArrowLeft className="h-4 w-4" />
-            </button>
+        {/* Only show pagination indicators when there are multiple resorts */}
+        {resorts.length > 1 && (
+          <div className="flex items-center justify-center mt-10">
+            <div className="absolute bottom-4 w-full flex gap-2 justify-center items-center">
+              <button
+                onClick={handlePrevious}
+                className="h-10 w-10 rounded-full bg-primary text-white flex disabled:opacity-50 items-center justify-center"
+                disabled={activeCarouselIndex === 0}
+              >
+                <ArrowLeft className="h-4 w-4" />
+              </button>
 
-            {getVisiblePageNumbers(resorts.length, activeCarouselIndex).map(
-              (pageIndex) => (
-                <button
-                  key={pageIndex}
-                  // onClick={() => setActiveCarouselIndex(pageIndex)}
-                  onClick={() => handleActiveCarouselIndex(pageIndex)}
-                  className={`text-primary cursor-pointer text-xs font-medium h-10 w-10 flex items-center justify-center rounded-full border-[1.5px] border-primary ${activeCarouselIndex === pageIndex
-                    ? "bg-primary text-white"
-                    : "bg-transparent"
+              {getVisiblePageNumbers(resorts.length, activeCarouselIndex).map(
+                (pageIndex) => (
+                  <button
+                    key={pageIndex}
+                    // onClick={() => setActiveCarouselIndex(pageIndex)}
+                    onClick={() => handleActiveCarouselIndex(pageIndex)}
+                    className={`text-primary cursor-pointer text-xs font-medium h-10 w-10 flex items-center justify-center rounded-full border-[1.5px] border-primary ${
+                      activeCarouselIndex === pageIndex
+                        ? "bg-primary text-white"
+                        : "bg-transparent"
                     }`}
-                >
-                  {(pageIndex + 1).toString().padStart(2, "0")}
-                </button>
-              )
-            )}
+                  >
+                    {(pageIndex + 1).toString().padStart(2, "0")}
+                  </button>
+                )
+              )}
 
-            {resorts.length > 5 && activeCarouselIndex < resorts.length - 3 && (
-              <span className="text-primary px-2">...</span>
-            )}
+              {resorts.length > 5 &&
+                activeCarouselIndex < resorts.length - 3 && (
+                  <span className="text-primary px-2">...</span>
+                )}
 
-            <button
-              onClick={handleNext}
-              className="h-10 w-10 rounded-full bg-primary disabled:opacity-50 text-white flex items-center justify-center"
-              disabled={resorts.length === 1}
-            >
-              <ArrowRight className="h-4 w-4" />
-            </button>
+              <button
+                onClick={handleNext}
+                className="h-10 w-10 rounded-full bg-primary disabled:opacity-50 text-white flex items-center justify-center"
+                disabled={resorts.length === 1}
+              >
+                <ArrowRight className="h-4 w-4" />
+              </button>
+            </div>
           </div>
-        </div>
+        )}
       </Carousel>
 
-      <button
-        onClick={handleNext}
-        className={`h-10 w-10 min-w-10 rounded-full bg-primary disabled:opacity-50 text-white hidden lg:flex items-center justify-center `}
-        disabled={resorts.length === 1}
-      >
-        <ArrowRight className="h-4 w-4" />
-      </button>
+      {/* Only show external navigation button when there are multiple resorts */}
+      {resorts.length > 1 && (
+        <button
+          onClick={handleNext}
+          className={`h-10 w-10 min-w-10 rounded-full bg-primary disabled:opacity-50 text-white hidden lg:flex items-center justify-center `}
+          disabled={resorts.length === 1}
+        >
+          <ArrowRight className="h-4 w-4" />
+        </button>
+      )}
       {isPreviewOpen && (
         <div
           className="fixed inset-0 bg-black bg-opacity-90 z-50"
@@ -554,10 +627,11 @@ const ResortGallery = ({
                 <div
                   key={index}
                   onClick={() => setSelectedImage(index)}
-                  className={`w-16 h-16 md:w-20 md:h-20 flex-shrink-0 rounded-lg overflow-hidden border-2 transition-all ${index === selectedImage
-                    ? "border-blue-600"
-                    : "border-transparent hover:border-blue-400"
-                    }`}
+                  className={`w-16 h-16 md:w-20 md:h-20 flex-shrink-0 rounded-lg overflow-hidden border-2 transition-all ${
+                    index === selectedImage
+                      ? "border-blue-600"
+                      : "border-transparent hover:border-blue-400"
+                  }`}
                 >
                   <img
                     src={img}
