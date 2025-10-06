@@ -1,12 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { Button } from "../ui/button";
-import {
-  ChevronsDown,
-  ChevronLeft,
-  ChevronRight,
-  ArrowRight,
-  ArrowLeft,
-} from "lucide-react";
+import { ChevronsDown, ArrowRight, ArrowLeft } from "lucide-react";
 
 const Hero = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
