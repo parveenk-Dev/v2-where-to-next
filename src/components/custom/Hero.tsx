@@ -1,38 +1,48 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Button } from "../ui/button";
+import {
+  ChevronsDown,
+  ChevronLeft,
+  ChevronRight,
+  ArrowRight,
+  ArrowLeft,
+} from "lucide-react";
 
 const Hero = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const carouselImages = [
     "assets/Carousel/Home-page-carousel_1.jpg",
-    "assets/Carousel/Home-page-carousel_7.jpg",
     "assets/Carousel/Home-page-carousel_2.jpg",
     "assets/Carousel/Home-page-carousel_3.jpg",
     "assets/Carousel/Home-page-carousel_4.jpg",
     "assets/Carousel/Home-page-carousel_5.jpg",
     "assets/Carousel/Home-page-carousel_6.jpg",
-
   ];
 
-  // useEffect(() => {
-  //   const interval = setInterval(() => {
-  //     setCurrentSlide((prev) => (prev + 1) % carouselImages.length);
-  //   }, 3000);
+  // Manual navigation functions
+  const goToPreviousSlide = useCallback(() => {
+    setCurrentSlide((prev) =>
+      prev === 0 ? carouselImages.length - 1 : prev - 1
+    );
+  }, [carouselImages.length]);
 
-  //   return () => clearInterval(interval);
-  // }, [carouselImages.length]);
+  const goToNextSlide = useCallback(() => {
+    setCurrentSlide((prev) => (prev + 1) % carouselImages.length);
+  }, [carouselImages.length]);
 
+  // Keyboard navigation
   useEffect(() => {
-    const images = carouselImages;
+    const handleKeyPress = (event: KeyboardEvent) => {
+      if (event.key === "ArrowLeft") {
+        goToPreviousSlide();
+      } else if (event.key === "ArrowRight") {
+        goToNextSlide();
+      }
+    };
 
-    const slideDuration = currentSlide === 1 ? 5000 : 3000; // 
-
-    const timeout = setTimeout(() => {
-      setCurrentSlide((prev) => (prev + 1) % images.length);
-    }, slideDuration);
-
-    return () => clearTimeout(timeout);
-  }, [currentSlide]);
+    window.addEventListener("keydown", handleKeyPress);
+    return () => window.removeEventListener("keydown", handleKeyPress);
+  }, [goToPreviousSlide, goToNextSlide]);
 
   window.addEventListener("scroll", function () {
     const topSection = document?.querySelector(".top-section");
@@ -44,8 +54,9 @@ const Hero = () => {
     // Check if the top-section has scrolled out of view
     if (scrollY >= topSectionHeight) {
       // Reverse the scroll: move the image down as you scroll more
-      stickyImage.style.transform = `translateY(-${scrollY - topSectionHeight
-        }px)`;
+      stickyImage.style.transform = `translateY(-${
+        scrollY - topSectionHeight
+      }px)`;
     } else {
       // Keep the image in its place as the top-section scrolls
       stickyImage.style.transform = `translateY(0)`;
@@ -86,7 +97,10 @@ const Hero = () => {
                 onClick={() => handlePageRefresh()}
               />
 
-              <h1 className="text-[#0057ff] font-sandalsScript pt-16 mb-24 text-[50px] md:text-7xl font-normal">
+              <h1
+                className="text-[#0057ff] font-sandalsScript pt-16 mb-24 text-[50px] md:text-7xl font-normal cursor-pointer"
+                onClick={() => scrollToSection("choose-your-island")}
+              >
                 Where To Next?
               </h1>
               {/* <div className="relative">
@@ -102,9 +116,10 @@ const Hero = () => {
                 <Button
                   variant="default"
                   onClick={() => scrollToSection("explore-map")}
-                  className="w-40"
+                  className="w-44 px-14"
                 >
                   Explore the Map
+                  <ChevronsDown />
                 </Button>
                 <Button
                   variant="default"
@@ -112,6 +127,7 @@ const Hero = () => {
                   className="w-44 px-14"
                 >
                   Help Me Choose
+                  <ChevronsDown />
                 </Button>
                 <Button
                   variant="default"
@@ -119,13 +135,14 @@ const Hero = () => {
                   className="w-48 bg-[#f8f0db] text-primary border-primary"
                 >
                   New To Sandals?
+                  <ChevronsDown />
                 </Button>
               </div>
             </div>
           </section>
         </div>
 
-        <section className="w-full sticky-image h-screen">
+        <section className="w-full sticky-image h-screen relative">
           <div className="w-full h-full">
             {carouselImages.map((image, index) => (
               <img
@@ -142,6 +159,22 @@ const Hero = () => {
               />
             ))}
           </div>
+
+          {/* Navigation Arrows */}
+          <button
+            onClick={goToPreviousSlide}
+            className="absolute left-4 top-1/2 -translate-y-1/2 z-20 h-10 w-10 rounded-full bg-primary disabled:opacity-50 text-white flex items-center justify-center"
+            aria-label="Previous image"
+          >
+            <ArrowLeft className="h-4 w-4" />
+          </button>
+
+          <button
+            onClick={goToNextSlide}
+            className="absolute right-4 top-1/2 -translate-y-1/2 z-20 h-10 w-10 rounded-full bg-primary disabled:opacity-50 text-white flex items-center justify-center"
+          >
+            <ArrowRight className="h-4 w-4" />
+          </button>
         </section>
       </div>
     </>
