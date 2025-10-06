@@ -53,7 +53,7 @@ const App = () => {
   const [selectedIsland, setSelectedIsland] = useState<string>("");
   const [showNoResults, setShowNoResults] = useState(false);
   const [activeTab, setActiveTab] = useState("Overview");
-  const [finderType, setFinderType] = useState("");
+  const [, setFinderType] = useState("");
 
   const posthog = usePostHog();
 
