@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { Button } from "../ui/button";
 
@@ -33,6 +33,7 @@ import {
   ArrowRight,
   ChevronLeft,
   ChevronRight,
+  Info,
   X,
   ZoomIn,
   ZoomOut,
@@ -54,16 +55,72 @@ import {
   WeatherIcon,
   AdventureSeekersIcon,
 } from "../icons/ResortIcons";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+
+const CarouselCustom = ({ resort }: { resort: Resort }) => {
+  const allImages = resort.Tabs.reduce((acc, tab) => {
+    return [...acc, ...tab.images];
+  }, [] as string[]);
+
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+  // Auto-rotate every 4 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentImageIndex((prevIndex) =>
+        prevIndex === allImages.length - 1 ? 0 : prevIndex + 1
+      );
+    }, 4000);
+
+    return () => clearInterval(interval); // Cleanup on unmount
+  }, [allImages.length]);
+
+  return (
+    <div className="w-full">
+      {/* Image Area */}
+      <div className="relative w-full aspect-[16/9] mb-2 overflow-hidden rounded-xl">
+        {allImages.map((image, index) => (
+          <div
+            key={index}
+            className={`absolute inset-0 transition-opacity duration-700 ease-in-out ${
+              currentImageIndex === index ? "opacity-100" : "opacity-0"
+            }`}
+          >
+            <img
+              src={image}
+              alt={`${resort.ResortTitle} view ${index + 1}`}
+              className="w-full h-full object-cover"
+            />
+          </div>
+        ))}
+      </div>
+
+      {/* Indicators Outside Below */}
+      <div className="flex gap-2 w-2/3 justify-center mx-auto">
+        {allImages.map((_, index) => (
+          <button
+            key={index}
+            onClick={() => setCurrentImageIndex(index)}
+            className={`h-[4px] flex-1 transition-all duration-300 ${
+              currentImageIndex === index ? "bg-[#0066FF] " : "bg-[#D9D9D9] "
+            }`}
+            aria-label={`Go to slide ${index + 1}`}
+          />
+        ))}
+      </div>
+    </div>
+  );
+};
 
 const ResortGallery = ({
-  finderType,
+  // finderType,
   resorts,
   selectedIsland,
   showNoResults,
   activeTab,
   setActiveTab,
 }: {
-  finderType: string;
+  // finderType: string;
   resorts: Resort[];
   selectedIsland: string;
   showNoResults: boolean;
@@ -76,6 +133,8 @@ const ResortGallery = ({
 
   const [activeCarouselIndex, setActiveCarouselIndex] = useState(0);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  const [isDescriptionDialogOpen, setIsDescriptionDialogOpen] = useState(false);
+  const [showScrollIcon, setShowScrollIcon] = useState(false);
   const [selectedImage, setSelectedImage] = useState(0);
   const [scale, setScale] = useState(1);
 
@@ -151,14 +210,17 @@ const ResortGallery = ({
 
         // Push GA4 event to dataLayer
         if (typeof window !== "undefined") {
-          (window as any).dataLayer = (window as any).dataLayer || [];
+          type DataLayerEvent = Record<string, unknown>;
+          type WindowWithDataLayer = Window & { dataLayer?: DataLayerEvent[] };
+          const w = window as unknown as WindowWithDataLayer;
+          w.dataLayer = w.dataLayer || [];
 
-          const eventData = {
+          const eventData: DataLayerEvent = {
             event: "Back_To_Map",
             source: "scrollToMap",
           };
 
-          (window as any).dataLayer.push(eventData);
+          w.dataLayer.push(eventData);
           console.log("GA4 Tracking Event Fired:", eventData);
         }
       } else if (retryCount < 5) {
@@ -229,6 +291,19 @@ const ResortGallery = ({
     );
     return currentTab?.images || [];
   };
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const element = e.currentTarget;
+    const scrollTop = element.scrollTop;
+    const scrollHeight = element.scrollHeight;
+    const clientHeight = element.clientHeight;
+
+    // Check if we're at the bottom (within 5px tolerance for better detection)
+    const isAtBottom = scrollTop + clientHeight >= scrollHeight - 6;
+
+    // Show scroll icon only if content is scrollable AND we're not at the bottom
+    const isScrollable = scrollHeight > clientHeight;
+    setShowScrollIcon(isScrollable && !isAtBottom);
+  };
 
   if (showNoResults) {
     return (
@@ -260,6 +335,95 @@ const ResortGallery = ({
         </button>
       )}
 
+      <Dialog
+        open={isDescriptionDialogOpen}
+        onOpenChange={setIsDescriptionDialogOpen}
+      >
+        <DialogContent
+          className="sm:max-w-[725px] max-w-[332px] p-0 overflow-hidden bg-[#F8F0DB] rounded-lg max-h-[90vh] overflow-y-auto"
+          onScroll={handleScroll}
+        >
+          {/* Close button - absolute positioned on top right */}
+          <button
+            onClick={() => setIsDescriptionDialogOpen(false)}
+            className="absolute top-1 right-1 p-2 hover:bg-black/10 rounded-full z-10"
+          >
+            <X className="h-6 w-6 text-primary" />
+          </button>
+
+          {/* Content */}
+          <div className="p-6 text-primary space-y-4">
+            <div>
+              <h2 className="text-4xl font-sandalsSlab font-normal text-center">
+                {resorts[activeCarouselIndex]?.ResortTitle}
+              </h2>
+
+              <p className="text-base font-normal font-sandalsSans leading-[19.2px] text-center">
+                {resorts[activeCarouselIndex]?.City}
+                {resorts[activeCarouselIndex]?.City && ", "}
+                {resorts[activeCarouselIndex]?.Island}
+              </p>
+            </div>
+            {/* Image Container */}
+            <CarouselCustom resort={resorts[activeCarouselIndex]} />
+
+            <ul className="space-y-2 text-sm opacity-90">
+              {resorts[activeCarouselIndex]?.ResortDescription.split("\n").map(
+                (item, index) =>
+                  item.length > 0 && (
+                    <li
+                      key={index}
+                      className="flex items-start font-sandalsSans"
+                    >
+                      <span className="mr-2">•</span>
+                      {item}
+                    </li>
+                  )
+              )}
+            </ul>
+
+            {/* Start Call button */}
+            <div className="flex justify-center">
+              <Button
+                className="bg-[#0057ff] text-white hover:bg-[#0045cc] py-1"
+                onClick={() =>
+                  handleBookNowClick(
+                    resorts[activeCarouselIndex],
+                    "Island Card"
+                  )
+                }
+              >
+                Book Now
+              </Button>
+            </div>
+          </div>
+
+          {/* Scroll Icon - inside DialogContent */}
+          {showScrollIcon && (
+            <div
+              key={`scroll-icon-${showScrollIcon}`}
+              className="fixed bottom-[7svh] opacity-50 mt-10 left-1/2 !-translate-x-1/2 animate-bounce z-[9999]"
+            >
+              <div className="w-10 h-10 bg-[#0066FF] rounded-full flex items-center justify-center">
+                <svg
+                  className="w-6 h-6 text-white"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M19 14l-7 7m0 0l-7-7m7 7V3"
+                  />
+                </svg>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
       <Carousel className="w-full max-w-7xl lg:max-w-[calc(100%-100px)] 2xl:max-w-7xl">
         <CarouselContent className=" mb-8">
           {resorts.length > 0 ? (
@@ -279,6 +443,7 @@ const ResortGallery = ({
                       <div className="flex lg:flex-col gap-5">
                         <div className=" overflow-hidden mb-3">
                           <img
+                            onClick={() => setIsDescriptionDialogOpen(true)}
                             src={`assets/images/Sandals_Images/${formatDashes(
                               resort.ResortTitle
                             )}/Carousel_ResortHero_Slider/${formatDashes(
@@ -292,10 +457,17 @@ const ResortGallery = ({
                         <div className="">
                           {/* Resort Info */}
                           <div className="mb-8">
-                            <h2 className="text-2xl font-sandalsSlab mb-2">
-                              {resort.ResortTitle}
+                            <h2
+                              onClick={() => setIsDescriptionDialogOpen(true)}
+                              className="flex items-center gap-2 text-2xl font-sandalsSlab mb-2 cursor-pointer hover:underline hover:text-[#CDFFFF]"
+                            >
+                              <span>{resort.ResortTitle}</span>
+                              <Info className="h-4 w-4" />
                             </h2>
-                            <h4 className="text-lg  mb-5 font-sandalsSans">
+                            <h4
+                              onClick={() => setIsDescriptionDialogOpen(true)}
+                              className="text-lg mb-5 font-sandalsSans cursor-pointer hover:underline hover:text-[#CDFFFF]"
+                            >
                               {resort.City}
                               {resort.City && ", "}
                               {resort.Island}
@@ -355,7 +527,7 @@ const ResortGallery = ({
                           {/* Book Now Button */}
                           <Button
                             onClick={() => {
-                              handleBookNowClick(resort, {}, finderType);
+                              handleBookNowClick(resort, "Island Card");
                             }}
                             className="w-full"
                           >
@@ -405,7 +577,7 @@ const ResortGallery = ({
                             </Button>
                             <Button
                               onClick={() =>
-                                handleBookNowClick(resort, {}, finderType)
+                                handleBookNowClick(resort, "Island Card")
                               }
                               variant="default"
                               className="whitespace-nowrap"
