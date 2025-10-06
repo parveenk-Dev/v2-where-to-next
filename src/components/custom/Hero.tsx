@@ -144,7 +144,7 @@ const Hero = () => {
                 src={image}
                 alt={`Slide ${index + 1}`}
                 className={`
-                   top-0 left-0 w-full h-full object-cover
+                   top-0 left-0 w-full h-full object-contain
                   transition-opacity duration-500 ease-in-out
                   ${currentSlide === index ? "opacity-100" : "opacity-0"}
                   ${index === 0 ? "relative" : "absolute"}

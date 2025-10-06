@@ -212,9 +212,9 @@ const App = () => {
             </div>
             <iframe
               className="map h-[500px] md:h-[750px]"
-              src="https://my.atlist.com/map/45ce2394-2a9a-49ac-ba8b-dc419396ba26?share=true"
-              allow="geolocation 'self' https://my.atlist.com"
-              margin-bottom="-5px"
+              src={import.meta.env.VITE_ATLIST_MAP_SRC || "https://my.atlist.com/map/45ce2394-2a9a-49ac-ba8b-dc419396ba26?share=true"}
+              allow={"geolocation 'self' https://my.atlist.com"}
+              style={{ marginBottom: "-5px" }}
               width="100%"
               // height="750px"
               loading="lazy"
