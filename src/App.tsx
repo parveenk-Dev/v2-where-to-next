@@ -53,17 +53,17 @@ const App = () => {
   const [selectedIsland, setSelectedIsland] = useState<string>("");
   const [showNoResults, setShowNoResults] = useState(false);
   const [activeTab, setActiveTab] = useState("Overview");
-  const [finderType, setFinderType] = useState("")
+  const [, setFinderType] = useState("");
 
-  const posthog = usePostHog()
+  const posthog = usePostHog();
 
   useEffect(() => {
-    posthog.capture('user_logged_in')
+    posthog.capture("user_logged_in");
     // posthog.identify(String(user_profile_id), {
     //   email,
     // })
     return () => {
-      posthog.reset()
+      posthog.reset();
     };
   }, []);
 
@@ -138,20 +138,24 @@ const App = () => {
 
   // Check for search query in URL parameters
   const urlParams = new URLSearchParams(window.location.search);
-  const searchQuery = urlParams.get('search');
-  const fallbackQuery = window.location.search.startsWith("?") ? window.location.search.substring(1) : null;
+  const searchQuery = urlParams.get("search");
+  const fallbackQuery = window.location.search.startsWith("?")
+    ? window.location.search.substring(1)
+    : null;
   const finalSearchQuery = searchQuery || fallbackQuery;
   useEffect(() => {
     if (finalSearchQuery) {
-      const eventName = `Map_Pin_Explore More_${finalSearchQuery?.replace(/\s+/g, "_")}`
+      const eventName = `Map_Pin_Explore More_${finalSearchQuery?.replace(
+        /\s+/g,
+        "_"
+      )}`;
       trackGAEvent(eventName, {});
     }
   }, [finalSearchQuery, searchQuery]);
 
-//iframe GA tracking
+  //iframe GA tracking
   useEffect(() => {
     const handleIframeMessage = (event: MessageEvent) => {
-
       const { event: eventName } = event.data || {};
 
       if (eventName && typeof window !== "undefined") {
@@ -174,7 +178,7 @@ const App = () => {
       window.removeEventListener("message", handleIframeMessage);
     };
   }, []);
-  
+
   return (
     <BrowserRouter>
       <PostHogProvider
@@ -190,7 +194,7 @@ const App = () => {
           <div className="">
             <div className="gallery">
               <ResortGallery
-                finderType={finderType}
+                // finderType={finderType}
                 activeTab={activeTab}
                 setActiveTab={setActiveTab}
                 resorts={showResortData}
