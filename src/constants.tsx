@@ -120,7 +120,7 @@ export const privacyChoiceClick = () => {
 
   w.dataLayer.push(eventData);
 
-  console.log("GA4 Tracking Event Fired:", eventData);
+  console.log("GA4 Tracking Event Fired: ", eventData);
 
   window.open("https://www.sandals.com/privacy-preferences/", "_blank");
 };
