@@ -586,7 +586,7 @@ const ResortGallery = ({
                             </Button>
                           </div>
                         </div>
-                        <p className="mb-3 text-sm text-right font-medium">
+                        <p className="mb-3 text-sm text-right font-medium text-[#0057ff]">
                           Up to 12% off. Only available on resort.
                         </p>
                         <div className="grid grid-cols-4 gap-4">
